@@ -11,6 +11,7 @@
 
 LiquidCrystal lcd(8,9,4,5,6,7);
 
+
 // funcion que devuelve el estado de la botonera
 int readButton()
 {
@@ -42,6 +43,8 @@ int flag = 1;
 int lugar = 0;
 int minutos=0;
 int segundos=0;
+int tiempoTotal = 0;
+long t;
 int state = STATE_CONFIG;
 
 void loop() 
@@ -49,6 +52,7 @@ void loop()
 
   switch(state)
   {
+	case STATE_CONFIG;  
     estadoConfig();
   }
   
@@ -246,6 +250,10 @@ void estadoConfig()
     break;
     case BTN_SELECT:
      state=STATE_CLOCK;
+	 
+	 tiempoTotal = (minutos*60)+segundos;
+	 t = millis();
+	 //tiempoTotal = tiempoTotal/60;	 
     break;
     case BTN_NONE:
     lcd.setCursor(lugar,1);
@@ -256,4 +264,28 @@ void estadoConfig()
     break;
     }
   
+}
+
+void estadoClock ()
+{
+	long tActual = millis();
+	
+	if(tActual - t >= 1000){
+		tiempoTotal--;
+	//Mostrar en la pantalla el tiempo total que queda
+	minutos = tiempoTotal/60;
+	segundos = tiempoTotal%60;
+	
+	
+		
+	
+	}
+	if (tiempoTotal == 0)
+	{
+		//Vuelvo al estado config
+		state=STATE_CONFIG;
+		
+		
+	}
+	
 }
