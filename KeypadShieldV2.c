@@ -4,79 +4,256 @@
 #define BTN_LEFT   3
 #define BTN_SELECT 4
 #define BTN_NONE   5
+#include <LiquidCrystal.h>
 
 #define STATE_CONFIG 0
 #define STATE_CLOCK  1
 
-//La funcion readButton tiene que devolver en qué
-//estado está la botonera.
-
-int readButton(){
-	int value = analogRead(A0);
-	if(value<72)
-		return BTN_RIGHT;
-	if(value<237)
-		return BTN_UP;
-	if(value<419)
-		return BTN_DOWN;
-	if(value<625)
-		return BTN_LEFT;
-	if(value<882)
-		return BTN_SELECT;
-	return BTN_NONE;
-}
-
 LiquidCrystal lcd(8,9,4,5,6,7);
+
+// funcion que devuelve el estado de la botonera
+int readButton()
+{
+
+  int value = analogRead(A0);
+  if(value<72)
+    return BTN_RIGHT;
+  if(value<237)
+    return BTN_UP;
+  if(value<419)
+    return BTN_DOWN;
+  if(value<625)
+    return BTN_LEFT;
+  if(value<883)
+    return BTN_SELECT;
+  return BTN_NONE;
+
+}
+
+void setup() 
+{
+    lcd.begin(16,2);
+    Serial.begin(9600);
+    lcd.print("00:00");
+}
+
+int estado;
+int flag = 1;
+int lugar = 0;
+int minutos=0;
+int segundos=0;
 int state = STATE_CONFIG;
-void setup(){
-	Serial.begin(9600);
-	lcd.begin(16,2);
-	lcd.print("00:00");
-	lcd.setCursor(0,1);
-	lcd.print("^");
+
+void loop() 
+{
+
+  switch(state)
+  {
+    estadoConfig();
+  }
+  
+lcd.setCursor(0, 0);
+
 }
 
-int pos = 0;
-int previousButton = BTN_NONE;
-void loop(){
-	switch(state){
-		case STATE_CONFIG:
-		stateConfig();
-		break;
-		case STATE_CLOCK:
-		stateClock();
-		break;
-	}
-		
-	
-}
 
-void stateConfig(){
-	int button = readButton();
-	if(previousButton == BTN_NONE && button != BTN_NONE){
-		switch(button){
-			case BTN_RIGHT:
-			setCursor(pos, 1);
-			lcd.print(" ");
-			if(pos==1)
-				pos+=2;
-			else if(pos==4)
-				pos=0;
-			else
-				pos++;
-			setCursor(pos, 1);
-			lcd.print("^");
-			break;
-			case BTN_LEFT:
-			// PONGAN ACÁ EL CÓDIGO PARA QUE VAYA A LA IZQUIERDA. 
-			break;
-			case BTN_SELECT:
-			state = STATE_CLOCK;
-		}
-	}
-	previousButton = button;
-}
+void estadoConfig()
+{
+  
+   estado = readButton();
+   
+  switch(estado)
+  {
+    case BTN_RIGHT:
+        if(estado == BTN_RIGHT && flag)
+        {
+            if(lugar < 4)
+            {
+              lugar++;
+              if(lugar == 2)
+              {
+                lugar++;
+                lcd.setCursor(1,1);
+                lcd.print(" ");
+              }
+              lcd.setCursor(lugar-1,1);
+              lcd.print(" ^");
+            }
+            flag = 0;
+        }
+     break;
+    
+    case BTN_UP:
+     if(estado == BTN_UP && flag)
+    {
+     switch(lugar)
+     {
+      case 0:
+     
+      minutos += 10;
+      if(minutos>99)
+      {
+        minutos=0;
+        }
+       
+      break;
+      
+      case 1:
 
-void stateClock(){
-	
+      
+        minutos++;
+        if(minutos>99)
+      {
+        minutos=0;
+        }
+        
+  
+      break;
+      case 3:
+      segundos += 10;
+      if(segundos>59)
+      {
+        segundos=0;
+        }
+      
+
+      break;
+      case 4:
+      segundos++;
+      if(segundos>59)
+      {
+        segundos=0;
+        }
+
+      break;
+      
+      }
+    flag=0;
+
+    if(minutos<10)
+    {
+      lcd.setCursor(0,0);
+      lcd.print(0);
+      lcd.setCursor(1,0);
+     lcd.print(minutos);
+    }else
+    {
+     lcd.setCursor(0,0);
+     lcd.print(minutos);
+    }
+
+  if(segundos<10)
+  {
+    lcd.setCursor(3,0);
+      lcd.print(0);
+     lcd.setCursor(4,0);
+     lcd.print(segundos);
+  } else
+  {
+    lcd.setCursor(3,0);
+     lcd.print(segundos);
+  }
+  
+
+    }
+    
+    break;
+    case BTN_DOWN:
+    if(estado == BTN_DOWN && flag)
+    {
+     switch(lugar)
+     {
+      case 0:
+      minutos -= 10;
+      if(minutos<0)
+      {
+        minutos=99;
+        }
+      
+        break;
+      case 1:
+        minutos--;
+        if(minutos<0)
+      {
+        minutos=99;
+        }
+
+  
+      break;
+      case 3:
+      segundos -=10;
+      if(segundos<0)
+      {
+        segundos=59;
+        }
+      break;
+      case 4:
+      segundos--;
+      if(segundos<0)
+      {
+        segundos=59;
+        }
+ 
+      break;
+      
+      }
+    flag=0;
+     if(minutos<10)
+    {
+      lcd.setCursor(0,0);
+      lcd.print(0);
+      lcd.setCursor(1,0);
+     lcd.print(minutos);
+    }else
+    {
+     lcd.setCursor(0,0);
+     lcd.print(minutos);
+    }
+
+  if(segundos<10)
+  {
+    lcd.setCursor(3,0);
+      lcd.print(0);
+     lcd.setCursor(4,0);
+     lcd.print(segundos);
+  } else
+  {
+    lcd.setCursor(3,0);
+     lcd.print(segundos);
+  }
+
+    }
+    break;
+    case BTN_LEFT:
+    if(estado == BTN_LEFT && flag)
+    {
+        
+        
+        if(lugar > 0)
+        {
+          lugar--;
+          if(lugar == 2)
+          {
+            lcd.setCursor(3,1);
+            lcd.print(" ");
+            lugar--;
+          }
+          lcd.setCursor(lugar,1);
+          lcd.print("^ ");
+        }
+        flag = 0;
+    }
+    break;
+    case BTN_SELECT:
+     state=STATE_CLOCK;
+    break;
+    case BTN_NONE:
+    lcd.setCursor(lugar,1);
+    lcd.print("^");
+    flag = 1;
+    break;
+    default:
+    break;
+    }
+  
 }
