@@ -9,8 +9,8 @@
 #define STATE_CONFIG 0
 #define STATE_CLOCK  1
 
-LiquidCrystal lcd(8,9,4,5,6,7);
-
+//LiquidCrystal lcd(8,9,4,5,6,7);
+LiquidCrystal lcd(4,5,6,7,8,9);
 
 // funcion que devuelve el estado de la botonera
 int readButton()
@@ -52,12 +52,16 @@ void loop()
 
   switch(state)
   {
-	case STATE_CONFIG;  
+	case STATE_CONFIG:  
     estadoConfig();
+    break;
+	case STATE_CLOCK:
+	estadoClock();
   }
   
 lcd.setCursor(0, 0);
-
+// para el simulador se pone el delay
+delay (50);
 }
 
 
@@ -272,20 +276,26 @@ void estadoClock ()
 	
 	if(tActual - t >= 1000){
 		tiempoTotal--;
-	//Mostrar en la pantalla el tiempo total que queda
-	minutos = tiempoTotal/60;
-	segundos = tiempoTotal%60;
-	
-	
+	//Mostrar en la pantalla el tiempo total que queda	
 		
+	lcd.setCursor(0,0);	
+	int minutes = tiempoTotal/60;
+	int seconds = tiempoTotal%60;
+	char bomb[10];	
+	sprintf(bomb,"%02d:%02d",minutes,seconds);
+		lcd.print(bomb);
 	
-	}
 	if (tiempoTotal == 0)
 	{
 		//Vuelvo al estado config
-		state=STATE_CONFIG;
-		
+		state=STATE_CONFIG;	
 		
 	}
 	
+	t=tActual;
+	
+	}
 }
+
+
+//https://www.tinkercad.com/things/1Avob3JM2LK-display-lcd-botones
